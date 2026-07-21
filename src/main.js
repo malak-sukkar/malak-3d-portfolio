@@ -68,7 +68,7 @@ renderer.setClearColor(0x000000, 0);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enableRotate = true;
-controls.enablePan = true;
+controls.enablePan = false;
 
 controls.minAzimuthAngle = -Math.PI /18;
 controls.maxAzimuthAngle = Math.PI /2;
@@ -80,8 +80,6 @@ controls.minPolarAngle = Math.PI / 3;
 controls.maxPolarAngle = Math.PI / 2.1;
 
 controls.enableZoom = true;
-controls.touches.ONE = THREE.TOUCH.PAN;
-controls.touches.TOW = THREE.TOUCH.DOLLY_ROTATE;
 
 
 
@@ -92,6 +90,8 @@ function updatResponsiveSetting() {
     camera.fov = 90;
     controls.maxDistance = 10;
     controls.minDistance = 0.1;
+    controls.touches.ONE = THREE.TOUCH.PAN;
+    controls.touches.TOW = THREE.TOUCH.DOLLY_ROTATE;
 
   }  else{
     camera.fov = 50;
