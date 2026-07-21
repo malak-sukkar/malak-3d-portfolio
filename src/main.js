@@ -90,8 +90,8 @@ function updatResponsiveSetting() {
 
   if(isMobile) {
     camera.fov = 90;
-    controls.maxDistance = 5;
-    controls.minDistance = 0.5;
+    controls.maxDistance = 10;
+    controls.minDistance = 0.1;
 
   }  else{
     camera.fov = 50;
@@ -144,8 +144,8 @@ const cameraViewsMobile = {
     target: new THREE.Vector3(-0.7, 1.9, -1.2),
   },
   drawing: {
-    position: new THREE.Vector3(-1, 1.5, 1),
-    target: new THREE.Vector3(-1.15, 1.9, 1.15),
+    position: new THREE.Vector3(-0.8, 1.8, 1.1),
+    target: new THREE.Vector3(-0.9, 2, 1.3),
   },
 };
 
@@ -287,11 +287,18 @@ window.addEventListener("pointerup", (event) => {
         controls.enableRotate = false;
         controls.enablePan = false;
         controls.enableZoom = isMobile;
+        if(isMobile){
+          controls.maxDistance = 1;
+        }
 
         backButton.style.display = "block";
       }
       if (item.type ==="link"){
-        window.open(item.url, "_blank");
+        if(isMobile){
+          window.location.href = item.url;
+        }else{
+          window.open(item.url, "_blank");
+        }
       }
       break;
      }
@@ -347,6 +354,7 @@ backButton.addEventListener("click", ()=> {
   controls.enableRotate = true;
   controls.enablePan = true;
   controls.enableZoom = true;
+  controls.maxDistance = 10;
 
   hoverEnabled = true;
   objectsClickable = true;
