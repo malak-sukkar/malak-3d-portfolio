@@ -90,8 +90,8 @@ function updatResponsiveSetting() {
     camera.fov = 90;
     controls.maxDistance = 10;
     controls.minDistance = 0.1;
-    controls.touches.ONE = THREE.TOUCH.PAN;
-    controls.touches.TOW = THREE.TOUCH.DOLLY_ROTATE;
+    controls.touches.ONE = THREE.TOUCH.ROTATE;
+    controls.touches.TOW = THREE.TOUCH.DOLLY_PAN;
 
   }  else{
     camera.fov = 50;
