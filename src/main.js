@@ -14,6 +14,8 @@ let drawing;
 let github;
 let instagram;
 let linkedin;
+let cvIcon;
+let cvText;
 let hoveredObject = null;
 let hoverEnabled = true;
 let interactiveObjects = [];
@@ -29,7 +31,6 @@ const progressPercent = document.getElementById("progressPercent");
 const startButton = document.getElementById("startButton");
 const backButton = document.getElementById("backButton");
 const guide = document.getElementById("guide");
-const cvFileButton = document.getElementById("cvFileButton");
 const cvViewer = document.getElementById("cvViewer");
 const closeCv = document.getElementById("closeCv");
 
@@ -197,6 +198,7 @@ loader.setDRACOLoader(dracoLoader);
 
 loader.load(
   `${import.meta.env.BASE_URL}models/Room.glb`,
+
   (gltf) => {
     room = gltf.scene;
     scene.add(room);
@@ -208,6 +210,16 @@ loader.load(
     github = room.getObjectByName("Github");
     instagram = room.getObjectByName("Instagram");
     linkedin = room.getObjectByName("Linkedin");
+    cvIcon = room.getObjectByName("CV-Icon");
+    cvText = room.getObjectByName("Text");
+    cvIcon.visible = false;
+    cvText.visible = false;
+
+    if(cvIcon) {
+      cvIcon.traverse((child) => {
+        child.userData.isCV= true;
+      });
+    }
 
     interactiveObjects = [
       computerScreen,
@@ -216,6 +228,7 @@ loader.load(
       github,
       instagram,
       linkedin,
+      cvIcon,
     ].filter(Boolean);
 
     startButton.style.display =  "block";
@@ -245,8 +258,6 @@ loader.load(
 //click on objects
 window.addEventListener("pointerup", (event) => {
 
-  if(!objectsClickable) return;
-
   mouse.x = (event.clientX / window.innerWidth) * 2 -1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 +1;
 
@@ -258,8 +269,10 @@ window.addEventListener("pointerup", (event) => {
     { object: github, type: "link", url:"https://github.com/malak-sukkar"},
     { object: instagram, type: "link", url:"https://www.instagram.com/malak__sukkar"},
     { object: linkedin, type: "link", url:"https://www.linkedin.com/in/malak-sukkar-23a467299/"},
+    { object: cvIcon, type: "cv"},
   ];
   for(const item of clickableObjects) {
+     if(!objectsClickable &&  item.type !== "cv") continue;
      if( !item.object) continue;
      const intersects = raycaster.intersectObject(item.object, true);
     
@@ -279,9 +292,8 @@ window.addEventListener("pointerup", (event) => {
         moveCameraTo(item.view);
 
         if(item.view === "screen") {
-          cvFileButton.style.display = "block";
-        } else{
-          cvFileButton.style.display = "none";
+          cvIcon.visible = true;
+          cvText.visible = true;
         }
 
         controls.enableRotate = false;
@@ -293,6 +305,11 @@ window.addEventListener("pointerup", (event) => {
 
         backButton.style.display = "block";
       }
+      
+      if (item.type ==="cv"){
+        cvViewer.style.display = "block";
+      }
+
       if (item.type ==="link"){
         if(isMobile){
           window.location.href = item.url;
@@ -356,28 +373,22 @@ backButton.addEventListener("click", ()=> {
   controls.enableZoom = true;
   controls.maxDistance = 10;
 
-
   hoverEnabled = true;
   objectsClickable = true;
 
-  cvFileButton.style.display = "none";
+  cvIcon.visible = false;
+  cvText.visible = false;
+
   cvViewer.style.display = "none";
   backButton.style.display = "none";
 
 });
 
-//click cv file
-cvFileButton.addEventListener("click", ()=> {
-  cvViewer.style.display = "flex";
-  backButton.style.display = "none";
-  cvFileButton.style.display = "none";
-});
 
 //click close cv 
 closeCv.addEventListener("click", ()=> {
   cvViewer.style.display = "none";
   backButton.style.display = "block";
-  cvFileButton.style.display = "block";
 });
 
 
