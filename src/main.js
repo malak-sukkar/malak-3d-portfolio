@@ -121,8 +121,8 @@ const cameraViewsDesktop = {
     target: new THREE.Vector3(-1.3, 1.5, 0.15),
   },
   certificate: {
-    position: new THREE.Vector3(-0.3, 1.9, -0.001),
-    target: new THREE.Vector3(-0.3, 1.9, -0.4),
+    position: new THREE.Vector3(-0.1, 1.9, -0.001),
+    target: new THREE.Vector3(-0.1, 1.9, -0.4),
   },
   drawing: {
     position: new THREE.Vector3(-1, 1.5, 1),
@@ -285,7 +285,7 @@ window.addEventListener("pointerup", (event) => {
         }
 
         controls.enableRotate = false;
-        controls.enablePan = isMobile;
+        controls.enablePan = true;
         controls.enableZoom = isMobile;
         if(isMobile){
           controls.maxDistance = 1;
@@ -352,9 +352,10 @@ backButton.addEventListener("click", ()=> {
   moveCameraTo("start");
 
   controls.enableRotate = true;
-  controls.enablePan = true;
+  controls.enablePan = false;
   controls.enableZoom = true;
   controls.maxDistance = 10;
+
 
   hoverEnabled = true;
   objectsClickable = true;
