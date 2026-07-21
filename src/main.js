@@ -79,6 +79,10 @@ controls.maxDistance = 10;
 controls.minPolarAngle = Math.PI / 3;
 controls.maxPolarAngle = Math.PI / 2.1;
 
+controls.enableZoom = true;
+controls.touches.ONE = THREE.TOUCH.ROTATE;
+controls.touches.TOW = THREE.TOUCH.DOLLY_PAN;
+
 
 
 //update responsive setting
@@ -86,7 +90,9 @@ function updatResponsiveSetting() {
 
   if(isMobile) {
     camera.fov = 90;
-    controls.maxDistance = 14;
+    controls.maxDistance = 5;
+    controls.minDistance = 0.5;
+
   }  else{
     camera.fov = 50;
     controls.maxDistance = 10;
@@ -237,7 +243,7 @@ loader.load(
 
 
 //click on objects
-window.addEventListener("pointerdown", (event) => {
+window.addEventListener("pointerup", (event) => {
 
   if(!objectsClickable) return;
 
@@ -280,7 +286,7 @@ window.addEventListener("pointerdown", (event) => {
 
         controls.enableRotate = false;
         controls.enablePan = false;
-        controls.enableZoom = false;
+        controls.enableZoom = isMobile;
 
         backButton.style.display = "block";
       }
@@ -328,7 +334,7 @@ window.addEventListener("pointerdown", (event) => {
 
 
 //click start button
-startButton.addEventListener("pointerdown", (event)=> {
+startButton.addEventListener("pointerup", (event)=> {
   music.play();
   loadingScreen.style.display = "none";
   moveCameraTo("start");
