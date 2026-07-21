@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/src/style.css">
+    <title>malak-3d-portfolio</title>
+  </head>
+
+  <body>
+
+
+    <div id="loadingScreen">
+
+      <p id="loadingText">Loading...</p>
+      <p id="guide">1. Drag and click to move around<br>
+        2. Interact with screen, artwork, certificate and social media icons</p>
+      <div id="progressBar">
+        <div id="progressFill"></div>
+      </div>
+      <p id="progressPercent">0%</p>
+
+      <button id="startButton">Start</button>
+    </div>
+
+    <div id="tooltip">Click</div>
+
+    <button id="backButton">Go Back</button>
+
+    <div id="cvFileButton">
+      <img src="/icons/icons-file.png" alt="CV">
+      <span>CV.pdf</span>
+    </div>
+
+    <div id="cvViewer">
+      <div id="cvHeader">
+         <button id="closeCv">x</button>
+      </div>
+      <div id="cvContent">
+         <img src="/cv/cv page 1.png" alt="cv page 1">
+         <img src="/cv/cv page 2.png" alt="cv page 1">
+      </div>
+      
+    </div>
+
+
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
