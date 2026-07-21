@@ -237,7 +237,7 @@ loader.load(
 
 
 //click on objects
-window.addEventListener("click", (event) => {
+window.addEventListener("pointerdown", (event) => {
 
   if(!objectsClickable) return;
 
@@ -328,7 +328,7 @@ window.addEventListener("click", (event) => {
 
 
 //click start button
-startButton.addEventListener("click", ()=> {
+startButton.addEventListener("pointerdown", (event)=> {
   music.play();
   loadingScreen.style.display = "none";
   moveCameraTo("start");
