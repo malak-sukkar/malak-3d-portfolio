@@ -80,8 +80,8 @@ controls.minPolarAngle = Math.PI / 3;
 controls.maxPolarAngle = Math.PI / 2.1;
 
 controls.enableZoom = true;
-controls.touches.ONE = THREE.TOUCH.ROTATE;
-controls.touches.TOW = THREE.TOUCH.DOLLY_PAN;
+controls.touches.ONE = THREE.TOUCH.PAN;
+controls.touches.TOW = THREE.TOUCH.DOLLY_ROTATE;
 
 
 
