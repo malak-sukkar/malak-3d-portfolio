@@ -214,6 +214,8 @@ loader.load(
 
     startButton.style.display =  "block";
     progressBar.style.display =  "none";
+    progressFill.style.width = "100%";
+    progressPercent.innerText = "100%";
     progressPercent.style.display = "none";
     loadingText.innerText = "Quick Start Guide";
     guide.style.display = "block";
@@ -221,9 +223,9 @@ loader.load(
   },
   (progress) => {
     if (progress.lengthComputable) {
-      const percent = Math.round((progress.loaded/ progress.total) * 100);
-      progressFill.style.width = percent + "%";
-      progressPercent.innerText = percent + "%";
+      const percent = Math.min(100, Math.round((progress.loaded/ progress.total) * 100));
+      progressFill.style.width = `${percent}%`;
+      progressPercent.innerText = `${percent}%`;
     }
   },
   (error) => {
