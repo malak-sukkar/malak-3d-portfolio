@@ -285,7 +285,7 @@ window.addEventListener("pointerup", (event) => {
         }
 
         controls.enableRotate = false;
-        controls.enablePan = false;
+        controls.enablePan = isMobile;
         controls.enableZoom = isMobile;
         if(isMobile){
           controls.maxDistance = 1;
