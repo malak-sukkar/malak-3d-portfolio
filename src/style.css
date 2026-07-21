@@ -137,8 +137,8 @@ canvas {
   height: 38vh;
   background: white;
   border-radius: 10px;
+  overflow: hidden;
   display: none;
-  flex-direction: column;
   z-index: 1000;
   box-shadow: 0 0 40px rgba(0,0,0,.5);
 }
@@ -157,8 +157,7 @@ canvas {
 }
 
 #cvContent{
-  flex: 1;
-  min-height: 0;
+  height: calc(100% - 45px);
   overflow-x: hidden;
   overflow-y: auto;
   margin-bottom: 10px;
