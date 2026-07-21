@@ -37,7 +37,7 @@ const isMobile = window.innerWidth <= 768;
 
 
 //audio
-const music = new Audio("/audio/ambient.mp3");
+const music = new Audio('${import.meta.env.BASE_URL}audio/ambient.mps');
 music.loop = true;
 music.volume = 0.25;
 
@@ -190,7 +190,7 @@ const loader = new GLTFLoader();
 loader.setDRACOLoader(dracoLoader);
 
 loader.load(
-  "/models/Room.glb",
+  '${import.meta.env.BASE_URL}/models/Room.glb',
   (gltf) => {
     room = gltf.scene;
     scene.add(room);
