@@ -12,9 +12,9 @@ body {
 
   background: linear-gradient(
     180deg,
-    #a8d2fc 0%,
-    #8ebafc 45%,
-    #5d9de1 100%
+    #aed5fb 0%,
+    #98bff9 25%,
+    #83b3e6 40%
   );
 }
 
@@ -64,9 +64,9 @@ canvas {
   z-index: 9999;
   background: linear-gradient(
     180deg,
-    #a8d2fc 0%,
-    #8ebafc 45%,
-    #5d9de1 100%
+    #aed5fb 0%,
+    #98bff9 25%,
+    #83b3e6 40%
   );
   transition: opacity .6s ease;
 }

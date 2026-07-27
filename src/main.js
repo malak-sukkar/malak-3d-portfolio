@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { gsap } from  "gsap";
+import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 import "./style.css";
 
 //variabels
@@ -45,6 +46,7 @@ music.volume = 0.25;
 
 //Scene
 const scene = new THREE.Scene();
+RectAreaLightUniformsLib.init();
 
 //Camera
 const camera = new THREE.PerspectiveCamera(
@@ -64,6 +66,13 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 document.body.appendChild(renderer.domElement);
 renderer.setClearColor(0x000000, 0);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1;
 
 //Controls
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -81,6 +90,50 @@ controls.minPolarAngle = Math.PI / 3;
 controls.maxPolarAngle = Math.PI / 2.1;
 
 controls.enableZoom = true;
+
+
+//Lights
+const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+directionalLight.position.set(5, 6, 5);
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.set(2048, 2048);
+
+directionalLight.shadow.camera.left = -6;
+
+directionalLight.shadow.camera.right = 6;
+
+directionalLight.shadow.camera.top = 6;
+
+directionalLight.shadow.camera.bottom = -6;
+
+directionalLight.shadow.camera.near = 0.5;
+
+directionalLight.shadow.camera.far = 20;
+
+directionalLight.shadow.bias = -0.0002;
+
+directionalLight.shadow.normalBias = 0.05;
+
+directionalLight.shadow.radius = 2;
+
+directionalLight.shadow.camera.updateProjectionMatrix();
+
+scene.add(directionalLight);
+
+
+const windowLight = new THREE.RectAreaLight(
+    0xddeeff,
+    3,
+    1.5,
+    2
+);
+
+windowLight.position.set(1.2, 2, -0.9);
+windowLight.rotation.y = Math.PI;
+scene.add(windowLight);
 
 
 
@@ -103,13 +156,6 @@ function updatResponsiveSetting() {
 
 updatResponsiveSetting();
 
-//Lights
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
-scene.add(ambientLight);
-
-const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
-directionalLight.position.set(5, 5, 5);
-scene.add(directionalLight);
 
 //camera positions
 const cameraViewsDesktop = {
@@ -202,6 +248,19 @@ loader.load(
   (gltf) => {
     room = gltf.scene;
     scene.add(room);
+
+    const screenLight = new THREE.PointLight(0xbfdfff, 0.15, 3);
+    screenLight.position.set(-1.07, 1.3, 0.27);
+    scene.add(screenLight);
+
+    room.traverse((child) =>{
+      if (child.isMesh){
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    
 
     chair = room.getObjectByName("Chair_Top");
     computerScreen = room.getObjectByName("Computer");
