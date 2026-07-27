@@ -290,6 +290,20 @@ loader.load(
       cvIcon,
     ].filter(Boolean);
 
+    const labels = [
+    "View my projects",
+    "View my certificate",
+    "View my artwork",
+    "Visit my GitHub",
+    "Visit my Instagram",
+    "Connect on LinkedIn",
+    "Open my CV"
+    ];
+
+    interactiveObjects.forEach((object, index) => {
+    object.userData.label = labels[index];
+    });
+
     startButton.style.display =  "block";
     progressBar.style.display =  "none";
     progressFill.style.width = "100%";
@@ -407,7 +421,8 @@ window.addEventListener("pointerup", (event) => {
     tooltip.style.display = "block";
     tooltip.style.left = event.clientX + 15 + "px";
     tooltip.style.top = event.clientY + 15 + "px";
-    tooltip.innerText = "Click to interact";
+    tooltip.innerText =
+    hoveredObject.userData.label || "Click to interact";
 
   } else {
     document.body.style.cursor = "default";
