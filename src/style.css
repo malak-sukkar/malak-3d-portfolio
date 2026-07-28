@@ -187,7 +187,26 @@ canvas {
   transition: .2s;
 }
 
+#musicToggle{
+    position: fixed;
+    display: none;
+    bottom: 25px;
+    right: 25px;
 
+    width: 48px;
+    height: 48px;
+
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+    font-size: 22px;
+
+    z-index: 9999;
+}
 
 
 @media (max-width: 768px) {

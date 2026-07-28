@@ -21,6 +21,7 @@ let hoveredObject = null;
 let hoverEnabled = true;
 let interactiveObjects = [];
 let objectsClickable = true;
+let musicPlaying = false;
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const tooltip = document.getElementById("tooltip");
@@ -34,6 +35,7 @@ const backButton = document.getElementById("backButton");
 const guide = document.getElementById("guide");
 const cvViewer = document.getElementById("cvViewer");
 const closeCv = document.getElementById("closeCv");
+const musicToggle = document.getElementById("musicToggle");
 
 const isMobile = window.innerWidth <= 768;
 
@@ -431,9 +433,28 @@ window.addEventListener("pointerup", (event) => {
 });
 
 
+musicToggle.addEventListener("click", async () => {
+    try {
+        if (musicPlaying) {
+            music.pause();
+            musicToggle.textContent = "🔇";
+            musicPlaying = false;
+        } else {
+            await music.play();
+            musicToggle.textContent = "🔊";
+            musicPlaying = true;
+        }
+    } catch (error) {
+        console.error("Could not play music:", error);
+    }
+});
+
 //click start button
 startButton.addEventListener("pointerup", (event)=> {
   music.play();
+  musicPlaying = true;
+  musicToggle.textContent = "🔊";
+  musicToggle.style.display = "block";
   loadingScreen.style.display = "none";
   moveCameraTo("start");
 });
