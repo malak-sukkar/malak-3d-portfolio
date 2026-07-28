@@ -36,6 +36,8 @@ const guide = document.getElementById("guide");
 const cvViewer = document.getElementById("cvViewer");
 const closeCv = document.getElementById("closeCv");
 const musicToggle = document.getElementById("musicToggle");
+const certificateCard = document.getElementById("certificateCard");
+const drawingCard = document.getElementById("drawingCard");
 
 const isMobile = window.innerWidth <= 768;
 
@@ -365,6 +367,7 @@ window.addEventListener("pointerup", (event) => {
         tooltip.style.display = "none";
 
         moveCameraTo(item.view);
+        showInfoCard(item.view);
 
         if(item.view === "screen") {
           cvIcon.visible = true;
@@ -432,7 +435,7 @@ window.addEventListener("pointerup", (event) => {
   }
 });
 
-
+//play or pause music
 musicToggle.addEventListener("click", async () => {
     try {
         if (musicPlaying) {
@@ -461,6 +464,8 @@ startButton.addEventListener("pointerup", (event)=> {
 
 //click back button
 backButton.addEventListener("click", ()=> {
+  hideInfoCards();
+  
   moveCameraTo("start");
 
   controls.enableRotate = true;
@@ -485,6 +490,25 @@ closeCv.addEventListener("click", ()=> {
   cvViewer.style.display = "none";
   backButton.style.display = "block";
 });
+
+// hide all cards
+function hideInfoCards() {
+    certificateCard.style.display = "none";
+    drawingCard.style.display = "none";
+}
+
+//show suitable card
+function showInfoCard(view) {
+    hideInfoCards();
+
+    if (view === "certificate") {
+        certificateCard.style.display = "block";
+    }
+
+    if (view === "drawing") {
+        drawingCard.style.display = "block";
+    }
+}
 
 
 //Resize
