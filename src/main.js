@@ -440,11 +440,11 @@ musicToggle.addEventListener("click", async () => {
     try {
         if (musicPlaying) {
             music.pause();
-            musicToggle.textContent = "🔇";
+            musicToggle.innerHTML = '<i class="fa-solid fa-volume-xmark"></i>';
             musicPlaying = false;
         } else {
             await music.play();
-            musicToggle.textContent = "🔊";
+            musicToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
             musicPlaying = true;
         }
     } catch (error) {
@@ -456,7 +456,7 @@ musicToggle.addEventListener("click", async () => {
 startButton.addEventListener("pointerup", (event)=> {
   music.play();
   musicPlaying = true;
-  musicToggle.textContent = "🔊";
+  musicToggle.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
   musicToggle.style.display = "block";
   loadingScreen.style.display = "none";
   moveCameraTo("start");
