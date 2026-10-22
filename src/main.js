@@ -458,10 +458,10 @@ function fitCvViewerToMonitor() {
   const top = canvasRect.top + (1 - Math.max(...projectedCorners.map((point) => point.y))) * canvasRect.height / 2;
   const bottom = canvasRect.top + (1 - Math.min(...projectedCorners.map((point) => point.y))) * canvasRect.height / 2;
   const insetX = (right - left) * 0.07;
-  const insetY = (bottom - top) * 0.07;
+  const insetY = (bottom - top) * 0.045;
   const availableWidth = Math.max(0, right - left - insetX * 2);
   const height = Math.max(0, bottom - top - insetY * 2);
-  const width = availableWidth;
+  const width = availableWidth * 0.8;
   const centeredLeft = left + (right - left - width) / 2;
 
   cvViewer.style.left = `${centeredLeft}px`;
