@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+    <title>CV manager | Malak Sukkar</title>
+  </head>
+  <body class="admin-page">
+    <main class="admin-shell">
+      <header class="admin-topbar">
+        <a class="brand" href="%BASE_URL%" aria-label="Malak Sukkar portfolio home">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span class="brand-copy"><strong>Malak Sukkar</strong><small>3D Portfolio</small></span>
+        </a>
+        <span class="private-label"><span aria-hidden="true"></span>Private area</span>
+      </header>
+
+      <a class="back-link" href="%BASE_URL%"><span aria-hidden="true">←</span> Return to portfolio</a>
+      <section class="admin-card" aria-labelledby="pageTitle">
+        <div class="eyebrow"><span aria-hidden="true"></span>PORTFOLIO SETTINGS</div>
+        <h1 id="pageTitle">Your CV,<br /><span>up to date.</span></h1>
+        <p class="intro">Sign in to replace the two page images visitors see in your portfolio.</p>
+
+        <div id="configurationNotice" class="notice notice-info" hidden>
+          Connect the managed storage service first. Follow the setup steps in the
+          <strong>CV-ADMIN-SETUP.md</strong> file in this project folder.
+        </div>
+        <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+        <section id="passwordSetupPanel" hidden>
+          <p id="passwordSetupCopy" class="setup-copy">Choose a password to finish setting up the CV manager.</p>
+          <form id="passwordSetupForm" class="form-stack">
+            <label for="newPassword">New password</label>
+            <input id="newPassword" name="newPassword" type="password" autocomplete="new-password" minlength="8" required />
+            <label for="confirmPassword">Confirm password</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required />
+            <button class="primary-button" type="submit"><span>Set password</span><span aria-hidden="true">→</span></button>
+          </form>
+        </section>
+
+        <form id="loginForm" class="form-stack">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="username" placeholder="you@example.com" required />
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required />
+          <button id="forgotPasswordLink" class="text-button forgot-link" type="button">Forgot your password?</button>
+          <button class="primary-button" type="submit"><span>Sign in</span><span aria-hidden="true">→</span></button>
+        </form>
+
+        <section id="uploadPanel" hidden>
+          <div class="signed-in-row">
+            <p>Signed in as <strong id="signedInEmail"></strong></p>
+            <button id="logoutButton" class="text-button" type="button">Sign out</button>
+          </div>
+          <form id="uploadForm" class="form-stack">
+            <label for="cvPage1File">Page 1 image</label>
+            <input id="cvPage1File" name="page1" type="file" accept="image/png,image/jpeg,image/webp" required />
+            <label for="cvPage2File">Page 2 image</label>
+            <input id="cvPage2File" name="page2" type="file" accept="image/png,image/jpeg,image/webp" required />
+            <button class="primary-button" type="submit"><span>Upload and publish</span><span aria-hidden="true">↑</span></button>
+          </form>
+          <p class="helper"><span aria-hidden="true">✦</span> PNG, JPG or WebP · up to 15 MB each · upload both pages together</p>
+        </section>
+      </section>
+      <p class="footer-note"><span aria-hidden="true">●</span> Only you can upload a replacement</p>
+    </main>
+    <script type="module" src="./src/admin.js"></script>
+  </body>
+</html>

@@ -5,6 +5,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { gsap } from  "gsap";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 import "./style.css";
+import { getCvConfig, getPublicCvPageUrls } from "./cv-storage.js";
 
 //variabels
 let chair;
@@ -35,6 +36,7 @@ const backButton = document.getElementById("backButton");
 const guide = document.getElementById("guide");
 const cvViewer = document.getElementById("cvViewer");
 const closeCv = document.getElementById("closeCv");
+const cvPages = [document.getElementById("cvPage1"), document.getElementById("cvPage2")];
 const musicToggle = document.getElementById("musicToggle");
 const certificateCard = document.getElementById("certificateCard");
 const drawingCard = document.getElementById("drawingCard");
@@ -308,7 +310,7 @@ loader.load(
     object.userData.label = labels[index];
     });
 
-    startButton.style.display =  "block";
+    startButton.style.display =  "flex";
     progressBar.style.display =  "none";
     progressFill.style.width = "100%";
     progressPercent.innerText = "100%";
@@ -386,6 +388,7 @@ window.addEventListener("pointerup", (event) => {
       
       if (item.type ==="cv"){
         cvViewer.style.display = "block";
+        showLatestCv();
       }
 
       if (item.type ==="link"){
@@ -399,6 +402,30 @@ window.addEventListener("pointerup", (event) => {
      }
     }
     });
+
+async function showLatestCv() {
+  if (!getCvConfig()) return;
+
+  try {
+    const pageUrls = getPublicCvPageUrls();
+    const pageObjects = await Promise.all(pageUrls.map(async (url) => {
+      const response = await fetch(`${url}?v=${Date.now()}`);
+      if (!response.ok) throw new Error("The uploaded CV pages are not available yet.");
+      const image = await response.blob();
+      if (!image.type.startsWith("image/")) throw new Error("An uploaded CV page is not an image.");
+      return URL.createObjectURL(image);
+    }));
+
+    cvPages.forEach((page, index) => {
+      const previousUrl = page.dataset.objectUrl;
+      if (previousUrl) URL.revokeObjectURL(previousUrl);
+      page.dataset.objectUrl = pageObjects[index];
+      page.src = pageObjects[index];
+    });
+  } catch (error) {
+    console.warn("Could not load the latest CV pages; showing the saved preview instead.", error);
+  }
+}
 
 //hover effect
  window.addEventListener("mousemove", (event) => {

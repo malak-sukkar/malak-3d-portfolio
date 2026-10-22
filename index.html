@@ -13,19 +13,37 @@
   <body>
 
     <div id="loadingScreen">
-
-      <p id="loadingText">Loading...</p>
-      <p id="guide">1. Drag and click to move around<br>
-        2. Interact with screen, artwork, certificate and social media icons</p>
-      <div id="progressBar">
-        <div id="progressFill"></div>
-      </div>
-      <p id="progressPercent">0%</p>
-
-      <button id="startButton">Start</button>
+      <div class="loading-orb loading-orb-one" aria-hidden="true"></div>
+      <div class="loading-orb loading-orb-two" aria-hidden="true"></div>
+      <section id="loadingCard" aria-live="polite">
+        <div class="loading-brand">
+          <span class="loading-brand-mark" aria-hidden="true">M</span>
+          <span class="loading-brand-copy"><strong>Malak Sukkar</strong><small>3D PORTFOLIO</small></span>
+        </div>
+        <div class="loading-content">
+          <p class="loading-eyebrow"><span aria-hidden="true"></span>INTERACTIVE EXPERIENCE</p>
+          <h1 id="loadingText">Preparing your portfolio</h1>
+          <p class="loading-description">Explore my work, projects and creative process in an interactive space.</p>
+          <div class="loading-progress-row">
+            <span>Preparing the scene</span>
+            <p id="progressPercent">0%</p>
+          </div>
+          <div id="progressBar" role="progressbar" aria-label="Portfolio loading progress" aria-valuemin="0" aria-valuemax="100">
+            <div id="progressFill"></div>
+          </div>
+          <p id="guide">Drag and click to move around.<br />Explore the screen, artwork, certificate and social links.</p>
+          <button id="startButton"><span>Enter portfolio</span><span aria-hidden="true">→</span></button>
+        </div>
+        <p class="loading-footnote"><span aria-hidden="true">✦</span> Designed and built by Malak</p>
+      </section>
     </div>
 
     <div id="tooltip">Click</div>
+
+    <a id="cvAdminButton" href="%BASE_URL%admin.html" aria-label="Open the private CV manager">
+      <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i>
+      <span>CV Manager</span>
+    </a>
 
     <button id="backButton">Go Back</button>
 
@@ -34,8 +52,10 @@
          <button id="closeCv">x</button>
       </div>
       <div id="cvContent">
-         <img src="%BASE_URL%cv/cv page 1.png" alt="cv page 1">
-         <img src="%BASE_URL%cv/cv page 2.png" alt="cv page 2">
+         <div id="cvImageFallback">
+           <img id="cvPage1" src="%BASE_URL%cv/cv page 1.png" alt="CV page 1">
+           <img id="cvPage2" src="%BASE_URL%cv/cv page 2.png" alt="CV page 2">
+         </div>
       </div>
       
     </div>
