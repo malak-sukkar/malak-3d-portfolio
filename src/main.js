@@ -388,6 +388,8 @@ window.addEventListener("pointerup", (event) => {
       
       if (item.type ==="cv"){
         cvViewer.style.display = "block";
+        cvViewer.classList.add("cv-on-monitor");
+        fitCvViewerToMonitor();
         showLatestCv();
       }
 
@@ -425,6 +427,59 @@ async function showLatestCv() {
   } catch (error) {
     console.warn("Could not load the latest CV pages; showing the saved preview instead.", error);
   }
+}
+
+function fitCvViewerToMonitor() {
+  const displayMesh = computerScreen?.getObjectByName("Computer_Screen");
+  if (!displayMesh?.isMesh) return;
+
+  displayMesh.geometry.computeBoundingBox();
+  displayMesh.updateWorldMatrix(true, false);
+  camera.updateMatrixWorld(true);
+
+  const bounds = displayMesh.geometry.boundingBox;
+  const projectedCorners = [];
+  for (const x of [bounds.min.x, bounds.max.x]) {
+    for (const y of [bounds.min.y, bounds.max.y]) {
+      for (const z of [bounds.min.z, bounds.max.z]) {
+        const point = new THREE.Vector3(x, y, z)
+          .applyMatrix4(displayMesh.matrixWorld)
+          .project(camera);
+        if (point.z >= -1 && point.z <= 1) projectedCorners.push(point);
+      }
+    }
+  }
+
+  if (!projectedCorners.length) return;
+
+  const canvasRect = renderer.domElement.getBoundingClientRect();
+  const left = canvasRect.left + (Math.min(...projectedCorners.map((point) => point.x)) + 1) * canvasRect.width / 2;
+  const right = canvasRect.left + (Math.max(...projectedCorners.map((point) => point.x)) + 1) * canvasRect.width / 2;
+  const top = canvasRect.top + (1 - Math.max(...projectedCorners.map((point) => point.y))) * canvasRect.height / 2;
+  const bottom = canvasRect.top + (1 - Math.min(...projectedCorners.map((point) => point.y))) * canvasRect.height / 2;
+  const insetX = (right - left) * 0.07;
+  const insetY = (bottom - top) * 0.07;
+  const availableWidth = Math.max(0, right - left - insetX * 2);
+  const height = Math.max(0, bottom - top - insetY * 2);
+  const width = availableWidth;
+  const centeredLeft = left + (right - left - width) / 2;
+
+  cvViewer.style.left = `${centeredLeft}px`;
+  cvViewer.style.top = `${top + insetY}px`;
+  cvViewer.style.width = `${width}px`;
+  cvViewer.style.height = `${height}px`;
+  cvViewer.style.transform = "none";
+  cvViewer.style.setProperty("--cv-screen-height", `${height}px`);
+}
+
+function resetCvViewerPosition() {
+  cvViewer.classList.remove("cv-on-monitor");
+  cvViewer.style.removeProperty("left");
+  cvViewer.style.removeProperty("top");
+  cvViewer.style.removeProperty("width");
+  cvViewer.style.removeProperty("height");
+  cvViewer.style.removeProperty("transform");
+  cvViewer.style.removeProperty("--cv-screen-height");
 }
 
 //hover effect
@@ -507,6 +562,7 @@ backButton.addEventListener("click", ()=> {
   cvText.visible = false;
 
   cvViewer.style.display = "none";
+  resetCvViewerPosition();
   backButton.style.display = "none";
 
 });
@@ -515,6 +571,7 @@ backButton.addEventListener("click", ()=> {
 //click close cv 
 closeCv.addEventListener("click", ()=> {
   cvViewer.style.display = "none";
+  resetCvViewerPosition();
   backButton.style.display = "block";
 });
 
@@ -557,6 +614,7 @@ function animate() {
     chair.rotation.y= Math.sin(Date.now() * 0.001)* 0.3;
   }
   controls.update();
+  if (cvViewer.classList.contains("cv-on-monitor")) fitCvViewerToMonitor();
   renderer.render(scene, camera);
 }
 

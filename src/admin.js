@@ -13,7 +13,10 @@ const configurationNotice = document.querySelector("#configurationNotice");
 const forgotPasswordLink = document.querySelector("#forgotPasswordLink");
 const logoutButton = document.querySelector("#logoutButton");
 const signedInEmail = document.querySelector("#signedInEmail");
-const pageInputs = [document.querySelector("#cvPage1File"), document.querySelector("#cvPage2File")];
+const pageInputs = [
+  document.querySelector("#cvPage1File"),
+  document.querySelector("#cvPage2File"),
+];
 const sessionKey = "portfolio-cv-admin-session";
 
 function showNotice(message, type = "info") {
@@ -25,7 +28,13 @@ function showNotice(message, type = "info") {
 async function readError(response) {
   try {
     const body = await response.json();
-    return body.msg || body.message || body.error_description || body.error || "Please try again.";
+    return (
+      body.msg ||
+      body.message ||
+      body.error_description ||
+      body.error ||
+      "Please try again."
+    );
   } catch {
     return "Please try again.";
   }
@@ -47,7 +56,9 @@ function setSignedIn(session) {
 
 if (!config) {
   configurationNotice.hidden = false;
-  loginForm.querySelectorAll("input, button").forEach((field) => { field.disabled = true; });
+  loginForm.querySelectorAll("input, button").forEach((field) => {
+    field.disabled = true;
+  });
 }
 
 const existingSession = readSession();
@@ -60,9 +71,10 @@ if (isPasswordSetup && inviteAccessToken) {
   loginForm.hidden = true;
   uploadPanel.hidden = true;
   passwordSetupPanel.hidden = false;
-  passwordSetupCopy.textContent = authLinkType === "recovery"
-    ? "Choose a new password for your CV manager account."
-    : "Your invitation is confirmed. Choose a password to finish setting up the CV manager.";
+  passwordSetupCopy.textContent =
+    authLinkType === "recovery"
+      ? "Choose a new password for your CV manager account."
+      : "Your invitation is confirmed. Choose a password to finish setting up the CV manager.";
 } else if (config && existingSession?.access_token) {
   setSignedIn(existingSession);
 }
@@ -76,17 +88,20 @@ loginForm.addEventListener("submit", async (event) => {
   showNotice("Signing in…");
 
   try {
-    const response = await fetch(`${config.url}/auth/v1/token?grant_type=password`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: config.anonKey,
+    const response = await fetch(
+      `${config.url}/auth/v1/token?grant_type=password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: config.anonKey,
+        },
+        body: JSON.stringify({
+          email: loginForm.elements.email.value.trim(),
+          password: loginForm.elements.password.value,
+        }),
       },
-      body: JSON.stringify({
-        email: loginForm.elements.email.value.trim(),
-        password: loginForm.elements.password.value,
-      }),
-    });
+    );
 
     if (!response.ok) throw new Error(await readError(response));
     const session = await response.json();
@@ -95,7 +110,10 @@ loginForm.addEventListener("submit", async (event) => {
     setSignedIn(session);
     showNotice("Signed in. Your CV is ready to update.", "success");
   } catch (error) {
-    showNotice(error.message || "Could not sign in. Please try again.", "error");
+    showNotice(
+      error.message || "Could not sign in. Please try again.",
+      "error",
+    );
   } finally {
     button.disabled = false;
   }
@@ -105,7 +123,10 @@ forgotPasswordLink.addEventListener("click", async () => {
   if (!config) return;
   const email = loginForm.elements.email.value.trim();
   if (!email) {
-    showNotice("Enter your email address first, then choose Forgot your password.", "error");
+    showNotice(
+      "Enter your email address first, then choose Forgot your password.",
+      "error",
+    );
     loginForm.elements.email.focus();
     return;
   }
@@ -113,19 +134,31 @@ forgotPasswordLink.addEventListener("click", async () => {
   forgotPasswordLink.disabled = true;
   showNotice("Requesting a password reset…");
   try {
-    const redirectTo = new URL(`${import.meta.env.BASE_URL}admin.html`, window.location.origin).toString();
-    const response = await fetch(`${config.url}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: config.anonKey,
+    const redirectTo = new URL(
+      `${import.meta.env.BASE_URL}admin.html`,
+      window.location.origin,
+    ).toString();
+    const response = await fetch(
+      `${config.url}/auth/v1/recover?redirect_to=${encodeURIComponent(redirectTo)}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: config.anonKey,
+        },
+        body: JSON.stringify({ email }),
       },
-      body: JSON.stringify({ email }),
-    });
+    );
     if (!response.ok) throw new Error(await readError(response));
-    showNotice("If an account exists for that email, a password reset link has been sent.", "success");
+    showNotice(
+      "If an account exists for that email, a password reset link has been sent.",
+      "success",
+    );
   } catch (error) {
-    showNotice(error.message || "Could not request a reset link. Please try again.", "error");
+    showNotice(
+      error.message || "Could not request a reset link. Please try again.",
+      "error",
+    );
   } finally {
     forgotPasswordLink.disabled = false;
   }
@@ -138,7 +171,10 @@ passwordSetupForm.addEventListener("submit", async (event) => {
   const password = passwordSetupForm.elements.newPassword.value;
   const confirmation = passwordSetupForm.elements.confirmPassword.value;
   if (password !== confirmation) {
-    showNotice("The passwords do not match. Check them and try again.", "error");
+    showNotice(
+      "The passwords do not match. Check them and try again.",
+      "error",
+    );
     return;
   }
 
@@ -164,14 +200,26 @@ passwordSetupForm.addEventListener("submit", async (event) => {
       refresh_token: inviteParams.get("refresh_token"),
       user,
     };
+
     sessionStorage.setItem(sessionKey, JSON.stringify(session));
-    window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
+    window.history.replaceState(
+      {},
+      document.title,
+      `${window.location.pathname}${window.location.search}`,
+    );
     passwordSetupForm.reset();
     passwordSetupPanel.hidden = true;
     setSignedIn(session);
-    showNotice("Password saved. You can now upload both CV page images.", "success");
+    showNotice(
+      "Password saved. You can now upload both CV page images.",
+      "success",
+    );
   } catch (error) {
-    showNotice(error.message || "Could not set the password. Request a fresh invitation and try again.", "error");
+    showNotice(
+      error.message ||
+        "Could not set the password. Request a fresh invitation and try again.",
+      "error",
+    );
   } finally {
     button.disabled = false;
   }
@@ -192,7 +240,11 @@ uploadForm.addEventListener("submit", async (event) => {
     showNotice("Choose both CV page images before uploading.", "error");
     return;
   }
-  if (files.some((file) => !["image/png", "image/jpeg", "image/webp"].includes(file.type))) {
+  if (
+    files.some(
+      (file) => !["image/png", "image/jpeg", "image/webp"].includes(file.type),
+    )
+  ) {
     showNotice("Use PNG, JPG or WebP images for both CV pages.", "error");
     return;
   }
@@ -207,29 +259,44 @@ uploadForm.addEventListener("submit", async (event) => {
 
   try {
     for (let index = 0; index < files.length; index += 1) {
-      const response = await fetch(`${config.url}/storage/v1/object/cv/page-${index + 1}`, {
-        method: "POST",
-        headers: {
-          apikey: config.anonKey,
-          Authorization: `Bearer ${session.access_token}`,
-          "Content-Type": files[index].type,
-          "x-upsert": "true",
+      const response = await fetch(
+        `${config.url}/storage/v1/object/cv/page-${index + 1}`,
+        {
+          method: "POST",
+          headers: {
+            apikey: config.anonKey,
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": files[index].type,
+            "x-upsert": "true",
+          },
+          body: files[index],
         },
-        body: files[index],
-      });
+      );
 
-      if (response.status === 401) throw new Error("Your sign-in has expired. Sign out and sign in again.");
+      if (response.status === 401)
+        throw new Error(
+          "Your sign-in has expired. Sign out and sign in again.",
+        );
       if (!response.ok) {
         const reason = await readError(response);
-        if (index === 1) throw new Error(`Page 1 uploaded, but page 2 failed: ${reason} Upload both pages again to keep them in sync.`);
+        if (index === 1)
+          throw new Error(
+            `Page 1 uploaded, but page 2 failed: ${reason} Upload both pages again to keep them in sync.`,
+          );
         throw new Error(reason);
       }
     }
 
-    showNotice("Both CV pages are uploaded. Open your portfolio and select the CV to see the new version.", "success");
+    showNotice(
+      "Both CV pages are uploaded. Open your portfolio and select the CV to see the new version.",
+      "success",
+    );
     uploadForm.reset();
   } catch (error) {
-    showNotice(error.message || "The upload failed. Please try again.", "error");
+    showNotice(
+      error.message || "The upload failed. Please try again.",
+      "error",
+    );
   } finally {
     button.disabled = false;
   }
