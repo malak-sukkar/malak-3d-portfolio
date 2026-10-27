@@ -57,7 +57,6 @@ let cvPdfRenderTasks = [];
 let cvZoom = 1;
 let cvScenePinchStartDistance = 0;
 let cvScenePinchStartGap = 0;
-let cvSceneZoomRenderTimer;
 
 async function loadPdfJs() {
   if (!pdfjsLib) {
@@ -114,8 +113,8 @@ async function renderCvPdf(source = fallbackCvPdfUrl, resetZoom = false) {
       pageElement.className = "cv-pdf-page";
       canvas.width = Math.ceil(viewport.width);
       canvas.height = Math.ceil(viewport.height);
-      canvas.style.width = `${viewport.width / pixelRatio}px`;
-      canvas.style.height = `${viewport.height / pixelRatio}px`;
+      canvas.style.width = `${cvZoom * 100}%`;
+      canvas.style.height = "auto";
       canvas.setAttribute("aria-label", `CV page ${pageNumber}`);
       pageElement.append(canvas);
       cvContent.append(pageElement);
@@ -140,15 +139,6 @@ async function renderCvPdf(source = fallbackCvPdfUrl, resetZoom = false) {
 function changeCvZoom(amount) {
   cvZoom = Math.min(4, Math.max(0.75, cvZoom * amount));
   renderCvPdf(cvPdfSource || fallbackCvPdfUrl);
-}
-
-function scheduleCvRenderAfterSceneZoom() {
-  window.clearTimeout(cvSceneZoomRenderTimer);
-  cvSceneZoomRenderTimer = window.setTimeout(() => {
-    if (cvViewer.classList.contains("cv-on-monitor")) {
-      renderCvPdf(cvPdfSource || fallbackCvPdfUrl);
-    }
-  }, 220);
 }
 
 function getTouchGap(touches) {
@@ -184,7 +174,6 @@ cvViewer.addEventListener("touchmove", (event) => {
 cvViewer.addEventListener("touchend", (event) => {
   if (event.touches.length < 2 && cvScenePinchStartGap) {
     cvScenePinchStartGap = 0;
-    scheduleCvRenderAfterSceneZoom();
   }
 });
 
@@ -234,7 +223,6 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enableRotate = true;
 controls.enablePan = false;
-controls.addEventListener("end", scheduleCvRenderAfterSceneZoom);
 
 controls.minAzimuthAngle = -Math.PI /18;
 controls.maxAzimuthAngle = Math.PI /2;

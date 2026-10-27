@@ -336,10 +336,14 @@ canvas {
 .cv-pdf-page{
   display: flex;
   justify-content: center;
-  width: max-content;
+  width: 100%;
   min-width: 100%;
   margin: 0 auto 10px;
   background: white;
+}
+
+#cvContent.is-zoomed .cv-pdf-page{
+  justify-content: flex-start;
 }
 
 .cv-pdf-page canvas{
