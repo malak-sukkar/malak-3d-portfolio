@@ -55,6 +55,9 @@ let pdfjsLib;
 let cvPdfRenderId = 0;
 let cvPdfRenderTasks = [];
 let cvZoom = 1;
+let cvScenePinchStartDistance = 0;
+let cvScenePinchStartGap = 0;
+let cvSceneZoomRenderTimer;
 
 async function loadPdfJs() {
   if (!pdfjsLib) {
@@ -139,6 +142,52 @@ function changeCvZoom(amount) {
   renderCvPdf(cvPdfSource || fallbackCvPdfUrl);
 }
 
+function scheduleCvRenderAfterSceneZoom() {
+  window.clearTimeout(cvSceneZoomRenderTimer);
+  cvSceneZoomRenderTimer = window.setTimeout(() => {
+    if (cvViewer.classList.contains("cv-on-monitor")) {
+      renderCvPdf(cvPdfSource || fallbackCvPdfUrl);
+    }
+  }, 220);
+}
+
+function getTouchGap(touches) {
+  const [first, second] = touches;
+  return Math.hypot(first.clientX - second.clientX, first.clientY - second.clientY);
+}
+
+// A pinch on the HTML overlay zooms the 3D scene camera, never the PDF itself.
+cvViewer.addEventListener("touchstart", (event) => {
+  if (!cvViewer.classList.contains("cv-on-monitor") || event.touches.length !== 2) return;
+  event.preventDefault();
+  cvScenePinchStartGap = getTouchGap(event.touches);
+  cvScenePinchStartDistance = camera.position.distanceTo(controls.target);
+}, { passive: false });
+
+cvViewer.addEventListener("touchmove", (event) => {
+  if (!cvScenePinchStartGap || event.touches.length !== 2) return;
+  event.preventDefault();
+
+  const currentGap = getTouchGap(event.touches);
+  if (!currentGap) return;
+  const nextDistance = THREE.MathUtils.clamp(
+    cvScenePinchStartDistance * (cvScenePinchStartGap / currentGap),
+    controls.minDistance,
+    controls.maxDistance,
+  );
+  const cameraDirection = camera.position.clone().sub(controls.target).normalize();
+  camera.position.copy(controls.target).addScaledVector(cameraDirection, nextDistance);
+  controls.update();
+  fitCvViewerToMonitor();
+}, { passive: false });
+
+cvViewer.addEventListener("touchend", (event) => {
+  if (event.touches.length < 2 && cvScenePinchStartGap) {
+    cvScenePinchStartGap = 0;
+    scheduleCvRenderAfterSceneZoom();
+  }
+});
+
 cvZoomIn.addEventListener("click", () => changeCvZoom(1.25));
 cvZoomOut.addEventListener("click", () => changeCvZoom(0.8));
 cvFitWidth.addEventListener("click", () => renderCvPdf(cvPdfSource || fallbackCvPdfUrl, true));
@@ -185,6 +234,7 @@ const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enableRotate = true;
 controls.enablePan = false;
+controls.addEventListener("end", scheduleCvRenderAfterSceneZoom);
 
 controls.minAzimuthAngle = -Math.PI /18;
 controls.maxAzimuthAngle = Math.PI /2;
@@ -489,10 +539,11 @@ window.addEventListener("pointerup", (event) => {
       }
       
       if (item.type ==="cv"){
-        // Keep the monitor and its HTML CV overlay stationary while the CV is open.
+        // Let mobile users pinch to zoom the scene while keeping the overlay on the monitor.
         controls.enableRotate = false;
         controls.enablePan = false;
-        controls.enableZoom = false;
+        controls.enableZoom = isMobile;
+        controls.minDistance = isMobile ? 0.7 : 1;
         cvViewer.style.display = "block";
         cvViewer.classList.add("cv-on-monitor");
         fitCvViewerToMonitor();
@@ -679,6 +730,7 @@ closeCv.addEventListener("click", ()=> {
   cvViewer.style.display = "none";
   resetCvViewerPosition();
   controls.enableZoom = isMobile;
+  controls.minDistance = isMobile ? 0.1 : 1;
   backButton.style.display = "block";
 });
 
