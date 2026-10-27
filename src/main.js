@@ -44,6 +44,13 @@ const drawingCard = document.getElementById("drawingCard");
 
 const isMobile = window.innerWidth <= 768;
 
+function cvPdfViewerUrl(url) {
+  const view = window.matchMedia("(max-width: 768px)").matches ? "Fit" : "FitH";
+  return `${url}#view=${view}&toolbar=0&navpanes=0`;
+}
+
+cvDocument.src = cvPdfViewerUrl(`${import.meta.env.BASE_URL}cv/cv.pdf`);
+
 
 //audio
 const music = new Audio(`${import.meta.env.BASE_URL}audio/ambient.mp3`);
@@ -422,7 +429,7 @@ async function showLatestCv() {
     if (previousUrl) URL.revokeObjectURL(previousUrl);
     const objectUrl = URL.createObjectURL(pdf);
     cvDocument.dataset.objectUrl = objectUrl;
-    cvDocument.src = `${objectUrl}#view=FitH&toolbar=0&navpanes=0`;
+    cvDocument.src = cvPdfViewerUrl(objectUrl);
     downloadCv.href = objectUrl;
   } catch (error) {
     console.warn("Could not load the latest CV PDF; showing the saved preview instead.", error);
@@ -603,6 +610,9 @@ window.addEventListener("resize", () => {
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
+
+  const pdfSource = cvDocument.dataset.objectUrl || `${import.meta.env.BASE_URL}cv/cv.pdf`;
+  cvDocument.src = cvPdfViewerUrl(pdfSource);
 });
 
 
