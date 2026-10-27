@@ -4,6 +4,7 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { gsap } from  "gsap";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
+import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import "./style.css";
 import { getCvConfig, getPublicCvPdfUrl } from "./cv-storage.js";
 
@@ -37,19 +38,110 @@ const guide = document.getElementById("guide");
 const cvViewer = document.getElementById("cvViewer");
 const closeCv = document.getElementById("closeCv");
 const downloadCv = document.getElementById("downloadCv");
-const cvDocument = document.getElementById("cvDocument");
+const cvContent = document.getElementById("cvContent");
+const cvZoomIn = document.getElementById("cvZoomIn");
+const cvZoomOut = document.getElementById("cvZoomOut");
+const cvFitWidth = document.getElementById("cvFitWidth");
 const musicToggle = document.getElementById("musicToggle");
 const certificateCard = document.getElementById("certificateCard");
 const drawingCard = document.getElementById("drawingCard");
 
 const isMobile = window.innerWidth <= 768;
+const fallbackCvPdfUrl = `${import.meta.env.BASE_URL}cv/cv.pdf`;
+let cvPdfSource = "";
+let cvPdfLoadingTask;
+let cvPdfDocument;
+let pdfjsLib;
+let cvPdfRenderId = 0;
+let cvPdfRenderTasks = [];
+let cvZoom = 1;
 
-function cvPdfViewerUrl(url) {
-  const view = window.matchMedia("(max-width: 768px)").matches ? "Fit" : "FitH";
-  return `${url}#view=${view}&toolbar=0&navpanes=0`;
+async function loadPdfJs() {
+  if (!pdfjsLib) {
+    pdfjsLib = await import("pdfjs-dist/build/pdf.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+  }
+  return pdfjsLib;
 }
 
-cvDocument.src = cvPdfViewerUrl(`${import.meta.env.BASE_URL}cv/cv.pdf`);
+async function renderCvPdf(source = fallbackCvPdfUrl, resetZoom = false) {
+  if (resetZoom) {
+    cvZoom = 1;
+    cvContent.scrollTop = 0;
+    cvContent.scrollLeft = 0;
+  }
+  const renderId = ++cvPdfRenderId;
+  cvPdfRenderTasks.forEach((task) => task.cancel());
+  cvPdfRenderTasks = [];
+  cvContent.replaceChildren();
+  cvContent.setAttribute("aria-busy", "true");
+  cvContent.classList.toggle("is-zoomed", cvZoom > 1.001);
+  const loadingMessage = document.createElement("p");
+  loadingMessage.className = "cv-pdf-status";
+  loadingMessage.textContent = "Loading CV…";
+  cvContent.append(loadingMessage);
+
+  try {
+    if (!cvPdfDocument || cvPdfSource !== source) {
+      if (cvPdfLoadingTask) await cvPdfLoadingTask.destroy();
+      cvPdfDocument = null;
+      cvPdfSource = source;
+      const pdfjs = await loadPdfJs();
+      if (renderId !== cvPdfRenderId) return;
+      cvPdfLoadingTask = pdfjs.getDocument({ url: source });
+      const loadedDocument = await cvPdfLoadingTask.promise;
+      if (renderId !== cvPdfRenderId) return;
+      cvPdfDocument = loadedDocument;
+    }
+
+    const contentWidth = cvContent.clientWidth;
+    if (!contentWidth) return;
+    cvContent.replaceChildren();
+
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    for (let pageNumber = 1; pageNumber <= cvPdfDocument.numPages; pageNumber += 1) {
+      if (renderId !== cvPdfRenderId) return;
+      const page = await cvPdfDocument.getPage(pageNumber);
+      const baseViewport = page.getViewport({ scale: 1 });
+      const scale = (contentWidth / baseViewport.width) * cvZoom;
+      const viewport = page.getViewport({ scale: scale * pixelRatio });
+      const pageElement = document.createElement("div");
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d", { alpha: false });
+      pageElement.className = "cv-pdf-page";
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      canvas.style.width = `${viewport.width / pixelRatio}px`;
+      canvas.style.height = `${viewport.height / pixelRatio}px`;
+      canvas.setAttribute("aria-label", `CV page ${pageNumber}`);
+      pageElement.append(canvas);
+      cvContent.append(pageElement);
+
+      const renderTask = page.render({ canvasContext: context, viewport });
+      cvPdfRenderTasks.push(renderTask);
+      await renderTask.promise;
+    }
+  } catch (error) {
+    if (error?.name !== "RenderingCancelledException" && renderId === cvPdfRenderId) {
+      console.error("Could not render the CV PDF.", error);
+      const message = document.createElement("p");
+      message.className = "cv-pdf-error";
+      message.textContent = "The CV could not be displayed. Please use the download button to open it.";
+      cvContent.replaceChildren(message);
+    }
+  } finally {
+    if (renderId === cvPdfRenderId) cvContent.removeAttribute("aria-busy");
+  }
+}
+
+function changeCvZoom(amount) {
+  cvZoom = Math.min(4, Math.max(0.75, cvZoom * amount));
+  renderCvPdf(cvPdfSource || fallbackCvPdfUrl);
+}
+
+cvZoomIn.addEventListener("click", () => changeCvZoom(1.25));
+cvZoomOut.addEventListener("click", () => changeCvZoom(0.8));
+cvFitWidth.addEventListener("click", () => renderCvPdf(cvPdfSource || fallbackCvPdfUrl, true));
 
 
 //audio
@@ -398,6 +490,7 @@ window.addEventListener("pointerup", (event) => {
         cvViewer.style.display = "block";
         cvViewer.classList.add("cv-on-monitor");
         fitCvViewerToMonitor();
+        renderCvPdf(cvPdfSource || fallbackCvPdfUrl, true);
         showLatestCv();
       }
 
@@ -425,12 +518,12 @@ async function showLatestCv() {
       throw new Error("The uploaded CV file is not a PDF.");
     }
 
-    const previousUrl = cvDocument.dataset.objectUrl;
+    const previousUrl = downloadCv.dataset.objectUrl;
     if (previousUrl) URL.revokeObjectURL(previousUrl);
     const objectUrl = URL.createObjectURL(pdf);
-    cvDocument.dataset.objectUrl = objectUrl;
-    cvDocument.src = cvPdfViewerUrl(objectUrl);
+    downloadCv.dataset.objectUrl = objectUrl;
     downloadCv.href = objectUrl;
+    await renderCvPdf(objectUrl, true);
   } catch (error) {
     console.warn("Could not load the latest CV PDF; showing the saved preview instead.", error);
   }
@@ -611,8 +704,9 @@ window.addEventListener("resize", () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1));
 
-  const pdfSource = cvDocument.dataset.objectUrl || `${import.meta.env.BASE_URL}cv/cv.pdf`;
-  cvDocument.src = cvPdfViewerUrl(pdfSource);
+  if (cvViewer.style.display !== "none") {
+    requestAnimationFrame(() => renderCvPdf(cvPdfSource || fallbackCvPdfUrl));
+  }
 });
 
 

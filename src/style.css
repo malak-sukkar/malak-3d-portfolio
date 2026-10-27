@@ -314,14 +314,12 @@ canvas {
 #cvHeader{
   height: 45px;
   flex-shrink: 0;
-
   display: flex;
-  justify-content: end;
-
+  align-items: center;
+  justify-content: space-between;
   padding: 5px 5px;
   box-sizing: border-box;
   background: white;
-  border-radius: 25%;
 }
 
 #cvContent{
@@ -329,13 +327,59 @@ canvas {
   overflow-x: hidden;
   overflow-y: auto;
   margin-bottom: 10px;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
-#cvDocument{
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
+
+.cv-pdf-page{
+  display: flex;
+  justify-content: center;
+  width: max-content;
+  min-width: 100%;
+  margin: 0 auto 10px;
   background: white;
+}
+
+.cv-pdf-page canvas{
+  display: block;
+  max-width: none;
+  height: auto;
+}
+
+#cvZoomControls{
+  position: absolute;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transform: translateX(-50%);
+}
+
+#cvZoomControls button{
+  display: inline-flex;
+  min-width: 25px;
+  width: 25px;
+  height: 25px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 1px solid #d6dce5;
+  border-radius: 6px;
+  background: #fff;
+  color: #24334a;
+  font: 700 15px/1 Arial, Helvetica, sans-serif;
+  cursor: pointer;
+}
+
+#cvZoomControls #cvFitWidth{
+  width: 34px;
+  font-size: 10px;
+}
+
+#cvZoomControls button:hover,
+#cvZoomControls button:focus-visible{
+  border-color: #e5b532;
+  background: #fff4cc;
 }
 
 #cvViewer.cv-on-monitor{
@@ -356,6 +400,23 @@ canvas {
   padding: 3px 4px;
   border-radius: 0;
   background: rgba(255, 255, 255, 0.96);
+}
+
+#cvViewer.cv-on-monitor #cvZoomControls{
+  gap: 2px;
+}
+
+#cvViewer.cv-on-monitor #cvZoomControls button{
+  min-width: 22px;
+  width: 22px;
+  height: 23px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+#cvViewer.cv-on-monitor #cvZoomControls #cvFitWidth{
+  width: 29px;
+  font-size: 9px;
 }
 
 #downloadCv{
@@ -397,9 +458,22 @@ canvas {
   left: 0;
   height: auto;
   box-sizing: border-box;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   margin: 0;
   padding: 0;
+}
+
+#cvViewer.cv-on-monitor #cvContent.is-zoomed{
+  overflow-x: auto;
+}
+
+.cv-pdf-status,
+.cv-pdf-error{
+  padding: 16px;
+  color: #24334a;
+  font: 14px/1.5 Arial, Helvetica, sans-serif;
+  text-align: center;
 }
 
 #closeCv{

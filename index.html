@@ -53,15 +53,14 @@
           <i class="fa-solid fa-download" aria-hidden="true"></i>
           <span>Download CV</span>
         </a>
+        <div id="cvZoomControls" aria-label="CV zoom controls">
+          <button id="cvZoomOut" type="button" aria-label="Zoom out" title="Zoom out">−</button>
+          <button id="cvFitWidth" type="button" aria-label="Fit CV to width" title="Fit to width">Fit</button>
+          <button id="cvZoomIn" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+        </div>
         <button id="closeCv" aria-label="Close CV">x</button>
       </div>
-      <div id="cvContent">
-        <iframe
-          id="cvDocument"
-          src="%BASE_URL%cv/cv.pdf#view=FitH&toolbar=0&navpanes=0"
-          title="Malak Sukkar CV"
-        ></iframe>
-      </div>
+      <div id="cvContent" aria-label="CV pages" tabindex="0"></div>
       
     </div>
 
