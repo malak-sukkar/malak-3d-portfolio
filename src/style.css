@@ -330,10 +330,12 @@ canvas {
   overflow-y: auto;
   margin-bottom: 10px;
 }
-#cvContent img{
-  width: 100%;
-  height: auto;
+#cvDocument{
   display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: white;
 }
 
 #cvViewer.cv-on-monitor{
@@ -373,20 +375,6 @@ canvas {
   overflow: auto;
   margin: 0;
   padding: 0;
-}
-
-#cvViewer.cv-on-monitor #cvImageFallback{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-}
-
-#cvViewer.cv-on-monitor #cvContent img{
-  width: 100%;
-  max-width: 100%;
-  height: auto;
-  flex: none;
 }
 
 #closeCv{

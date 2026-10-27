@@ -13,10 +13,7 @@ const configurationNotice = document.querySelector("#configurationNotice");
 const forgotPasswordLink = document.querySelector("#forgotPasswordLink");
 const logoutButton = document.querySelector("#logoutButton");
 const signedInEmail = document.querySelector("#signedInEmail");
-const pageInputs = [
-  document.querySelector("#cvPage1File"),
-  document.querySelector("#cvPage2File"),
-];
+const cvFileInput = document.querySelector("#cvFile");
 const sessionKey = "portfolio-cv-admin-session";
 
 function showNotice(message, type = "info") {
@@ -211,7 +208,7 @@ passwordSetupForm.addEventListener("submit", async (event) => {
     passwordSetupPanel.hidden = true;
     setSignedIn(session);
     showNotice(
-      "Password saved. You can now upload both CV page images.",
+      "Password saved. You can now upload your CV PDF.",
       "success",
     );
   } catch (error) {
@@ -228,7 +225,7 @@ passwordSetupForm.addEventListener("submit", async (event) => {
 uploadForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const session = readSession();
-  const files = pageInputs.map((input) => input.files[0]);
+  const file = cvFileInput.files[0];
 
   if (!session?.access_token) {
     showNotice("Your sign-in has expired. Please sign in again.", "error");
@@ -236,20 +233,20 @@ uploadForm.addEventListener("submit", async (event) => {
     loginForm.hidden = false;
     return;
   }
-  if (files.some((file) => !file)) {
-    showNotice("Choose both CV page images before uploading.", "error");
+  if (!file) {
+    showNotice("Choose your CV PDF before uploading.", "error");
     return;
   }
-  if (
-    files.some(
-      (file) => !["image/png", "image/jpeg", "image/webp"].includes(file.type),
-    )
-  ) {
-    showNotice("Use PNG, JPG or WebP images for both CV pages.", "error");
+  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    showNotice("Choose a PDF file for your CV.", "error");
     return;
   }
-  if (files.some((file) => file.size > 15 * 1024 * 1024)) {
-    showNotice("Each page image must be smaller than 15 MB.", "error");
+  if ((await file.slice(0, 5).text()) !== "%PDF-") {
+    showNotice("This file does not look like a valid PDF.", "error");
+    return;
+  }
+  if (file.size > 15 * 1024 * 1024) {
+    showNotice("Your CV PDF must be smaller than 15 MB.", "error");
     return;
   }
 
@@ -258,37 +255,23 @@ uploadForm.addEventListener("submit", async (event) => {
   showNotice("Uploading your CV…");
 
   try {
-    for (let index = 0; index < files.length; index += 1) {
-      const response = await fetch(
-        `${config.url}/storage/v1/object/cv/page-${index + 1}`,
-        {
-          method: "POST",
-          headers: {
-            apikey: config.anonKey,
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": files[index].type,
-            "x-upsert": "true",
-          },
-          body: files[index],
-        },
-      );
+    const response = await fetch(`${config.url}/storage/v1/object/cv/cv.pdf`, {
+      method: "POST",
+      headers: {
+        apikey: config.anonKey,
+        Authorization: `Bearer ${session.access_token}`,
+        "Content-Type": "application/pdf",
+        "x-upsert": "true",
+      },
+      body: file,
+    });
 
-      if (response.status === 401)
-        throw new Error(
-          "Your sign-in has expired. Sign out and sign in again.",
-        );
-      if (!response.ok) {
-        const reason = await readError(response);
-        if (index === 1)
-          throw new Error(
-            `Page 1 uploaded, but page 2 failed: ${reason} Upload both pages again to keep them in sync.`,
-          );
-        throw new Error(reason);
-      }
-    }
+    if (response.status === 401)
+      throw new Error("Your sign-in has expired. Sign out and sign in again.");
+    if (!response.ok) throw new Error(await readError(response));
 
     showNotice(
-      "Both CV pages are uploaded. Open your portfolio and select the CV to see the new version.",
+      "Your CV PDF is uploaded. Open your portfolio and select the CV to see the new version.",
       "success",
     );
     uploadForm.reset();

@@ -5,7 +5,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { gsap } from  "gsap";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 import "./style.css";
-import { getCvConfig, getPublicCvPageUrls } from "./cv-storage.js";
+import { getCvConfig, getPublicCvPdfUrl } from "./cv-storage.js";
 
 //variabels
 let chair;
@@ -36,7 +36,7 @@ const backButton = document.getElementById("backButton");
 const guide = document.getElementById("guide");
 const cvViewer = document.getElementById("cvViewer");
 const closeCv = document.getElementById("closeCv");
-const cvPages = [document.getElementById("cvPage1"), document.getElementById("cvPage2")];
+const cvDocument = document.getElementById("cvDocument");
 const musicToggle = document.getElementById("musicToggle");
 const certificateCard = document.getElementById("certificateCard");
 const drawingCard = document.getElementById("drawingCard");
@@ -409,23 +409,21 @@ async function showLatestCv() {
   if (!getCvConfig()) return;
 
   try {
-    const pageUrls = getPublicCvPageUrls();
-    const pageObjects = await Promise.all(pageUrls.map(async (url) => {
-      const response = await fetch(`${url}?v=${Date.now()}`);
-      if (!response.ok) throw new Error("The uploaded CV pages are not available yet.");
-      const image = await response.blob();
-      if (!image.type.startsWith("image/")) throw new Error("An uploaded CV page is not an image.");
-      return URL.createObjectURL(image);
-    }));
+    const response = await fetch(`${getPublicCvPdfUrl()}?v=${Date.now()}`);
+    if (!response.ok) throw new Error("The uploaded CV PDF is not available yet.");
+    const pdf = await response.blob();
+    const signature = await pdf.slice(0, 5).text();
+    if (pdf.type !== "application/pdf" && signature !== "%PDF-") {
+      throw new Error("The uploaded CV file is not a PDF.");
+    }
 
-    cvPages.forEach((page, index) => {
-      const previousUrl = page.dataset.objectUrl;
-      if (previousUrl) URL.revokeObjectURL(previousUrl);
-      page.dataset.objectUrl = pageObjects[index];
-      page.src = pageObjects[index];
-    });
+    const previousUrl = cvDocument.dataset.objectUrl;
+    if (previousUrl) URL.revokeObjectURL(previousUrl);
+    const objectUrl = URL.createObjectURL(pdf);
+    cvDocument.dataset.objectUrl = objectUrl;
+    cvDocument.src = `${objectUrl}#view=FitH&toolbar=0&navpanes=0`;
   } catch (error) {
-    console.warn("Could not load the latest CV pages; showing the saved preview instead.", error);
+    console.warn("Could not load the latest CV PDF; showing the saved preview instead.", error);
   }
 }
 

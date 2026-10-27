@@ -6,7 +6,7 @@ export function getCvConfig() {
   return { url: supabaseUrl, anonKey: supabaseAnonKey };
 }
 
-export function getPublicCvPageUrls() {
+export function getPublicCvPdfUrl() {
   if (!supabaseUrl) return null;
-  return [1, 2].map((page) => `${supabaseUrl}/storage/v1/object/public/cv/page-${page}`);
+  return `${supabaseUrl}/storage/v1/object/public/cv/cv.pdf`;
 }
