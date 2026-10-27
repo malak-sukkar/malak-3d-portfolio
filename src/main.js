@@ -478,9 +478,11 @@ window.addEventListener("pointerup", (event) => {
 
         controls.enableRotate = false;
         controls.enablePan = true;
-        controls.enableZoom = isMobile;
-        if(isMobile){
+        controls.enableZoom = item.view === "screen" ? false : isMobile;
+        if(isMobile && item.view !== "screen"){
           controls.maxDistance = 1;
+        } else {
+          controls.maxDistance = 10;
         }
 
         backButton.style.display = "block";
