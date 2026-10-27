@@ -489,6 +489,10 @@ window.addEventListener("pointerup", (event) => {
       }
       
       if (item.type ==="cv"){
+        // Keep the monitor and its HTML CV overlay stationary while the CV is open.
+        controls.enableRotate = false;
+        controls.enablePan = false;
+        controls.enableZoom = false;
         cvViewer.style.display = "block";
         cvViewer.classList.add("cv-on-monitor");
         fitCvViewerToMonitor();
@@ -674,6 +678,7 @@ backButton.addEventListener("click", ()=> {
 closeCv.addEventListener("click", ()=> {
   cvViewer.style.display = "none";
   resetCvViewerPosition();
+  controls.enableZoom = isMobile;
   backButton.style.display = "block";
 });
 
