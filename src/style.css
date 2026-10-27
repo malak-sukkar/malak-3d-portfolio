@@ -329,6 +329,8 @@ canvas {
   margin-bottom: 10px;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  /* Keep touch scrolling available while disabling pinch/double-tap zoom here. */
+  touch-action: pan-x pan-y;
 }
 
 .cv-pdf-page{
