@@ -47,7 +47,7 @@ These policies permit any authenticated account to manage the CV, so keep public
 
 ## Use the manager
 
-Run the site locally or deploy it. Open `/malak-3d-portfolio/admin.html` on the deployed site (or `/admin.html` in local development), sign in, and choose one PDF file up to 15 MB. It is uploaded as `cv.pdf`; the portfolio fetches and displays it when the CV is opened. The two existing page images have been combined into the local PDF fallback, which remains available if the hosted PDF has not been uploaded yet.
+Run the site locally or deploy it. Open `/malak-3d-portfolio/admin.html` on the deployed site (or `/admin.html` in local development), sign in, and choose one PDF file up to 15 MB. It is uploaded as `cv.pdf`; the portfolio fetches and displays it when the CV is opened. The supplied CV PDF is also included as the local fallback if the hosted PDF has not been uploaded yet.
 
 If Supabase says the email is already registered, don't invite it again. Open the manager, enter the email, choose **Forgot your password?**, then follow the reset link and set a password there.
 
