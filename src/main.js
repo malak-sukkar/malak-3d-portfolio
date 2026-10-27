@@ -477,7 +477,9 @@ window.addEventListener("pointerup", (event) => {
         }
 
         controls.enableRotate = false;
-        controls.enablePan = true;
+        // On the monitor, mobile pinch-to-zoom must not pan the camera away
+        // from the screen or the HTML CV overlay appears to drift across it.
+        controls.enablePan = item.view !== "screen";
         controls.enableZoom = isMobile;
         if(isMobile){
           controls.maxDistance = 1;
