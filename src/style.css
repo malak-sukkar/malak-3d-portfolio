@@ -371,6 +371,7 @@ canvas {
   color: #24334a;
   font: 700 15px/1 Arial, Helvetica, sans-serif;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 #cvZoomControls #cvFitWidth{
