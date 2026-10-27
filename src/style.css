@@ -351,9 +351,30 @@ canvas {
   width: 100%;
   height: 34px;
   z-index: 5;
+  align-items: center;
+  justify-content: space-between;
   padding: 3px 4px;
   border-radius: 0;
   background: rgba(255, 255, 255, 0.96);
+}
+
+#downloadCv{
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: #f7b500;
+  color: #17191d;
+  font: 700 clamp(9px, 1.1vw, 12px) Arial, Helvetica, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#downloadCv:hover,
+#downloadCv:focus-visible{
+  background: #ffc629;
 }
 
 #cvViewer.cv-on-monitor #closeCv{
@@ -548,6 +569,8 @@ canvas {
   top: 50%;
   border-radius: 4px;
   }
+
+  #downloadCv span{ display: none; }
 
   #cvHeader{
   height: 25px;

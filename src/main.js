@@ -36,6 +36,7 @@ const backButton = document.getElementById("backButton");
 const guide = document.getElementById("guide");
 const cvViewer = document.getElementById("cvViewer");
 const closeCv = document.getElementById("closeCv");
+const downloadCv = document.getElementById("downloadCv");
 const cvDocument = document.getElementById("cvDocument");
 const musicToggle = document.getElementById("musicToggle");
 const certificateCard = document.getElementById("certificateCard");
@@ -422,6 +423,7 @@ async function showLatestCv() {
     const objectUrl = URL.createObjectURL(pdf);
     cvDocument.dataset.objectUrl = objectUrl;
     cvDocument.src = `${objectUrl}#view=FitH&toolbar=0&navpanes=0`;
+    downloadCv.href = objectUrl;
   } catch (error) {
     console.warn("Could not load the latest CV PDF; showing the saved preview instead.", error);
   }
