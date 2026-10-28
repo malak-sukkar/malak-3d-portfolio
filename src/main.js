@@ -567,7 +567,9 @@ async function showLatestCv() {
     if (previousUrl) URL.revokeObjectURL(previousUrl);
     const objectUrl = URL.createObjectURL(pdf);
     downloadCv.dataset.objectUrl = objectUrl;
-    downloadCv.href = objectUrl;
+    // Ask Supabase to serve the CV as an attachment so browsers download it
+    // instead of opening the PDF inline. The blob URL remains for the preview.
+    downloadCv.href = `${getPublicCvPdfUrl()}?download=Malak-Sukkar-CV.pdf&v=${Date.now()}`;
     await renderCvPdf(objectUrl, true);
   } catch (error) {
     console.warn("Could not load the latest CV PDF; showing the saved preview instead.", error);
