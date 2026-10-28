@@ -57,6 +57,31 @@ let cvPdfRenderTasks = [];
 let cvZoom = 1;
 let cvScenePinchStartDistance = 0;
 let cvScenePinchStartGap = 0;
+let cvDownloadFile = null;
+
+async function cacheCvDownloadFile(source) {
+  try {
+    const response = await fetch(source);
+    if (!response.ok) return;
+    const blob = await response.blob();
+    cvDownloadFile = new File([blob], "Malak-Sukkar-CV.pdf", { type: "application/pdf" });
+  } catch (error) {
+    console.warn("Could not prepare the CV for mobile sharing.", error);
+  }
+}
+
+// On phones, offer the native share sheet so visitors can choose Save to Files.
+downloadCv.addEventListener("click", async (event) => {
+  if (!isMobile || !cvDownloadFile || !navigator.canShare || !navigator.share) return;
+  if (!navigator.canShare({ files: [cvDownloadFile] })) return;
+
+  event.preventDefault();
+  try {
+    await navigator.share({ files: [cvDownloadFile], title: "Malak Sukkar CV" });
+  } catch (error) {
+    if (error?.name !== "AbortError") window.location.href = downloadCv.href;
+  }
+});
 
 async function loadPdfJs() {
   if (!pdfjsLib) {
@@ -552,7 +577,10 @@ window.addEventListener("pointerup", (event) => {
     });
 
 async function showLatestCv() {
-  if (!getCvConfig()) return;
+  if (!getCvConfig()) {
+    await cacheCvDownloadFile(fallbackCvPdfUrl);
+    return;
+  }
 
   try {
     const response = await fetch(`${getPublicCvPdfUrl()}?v=${Date.now()}`);
@@ -563,6 +591,7 @@ async function showLatestCv() {
       throw new Error("The uploaded CV file is not a PDF.");
     }
 
+    cvDownloadFile = new File([pdf], "Malak-Sukkar-CV.pdf", { type: "application/pdf" });
     const previousUrl = downloadCv.dataset.objectUrl;
     if (previousUrl) URL.revokeObjectURL(previousUrl);
     const objectUrl = URL.createObjectURL(pdf);
@@ -573,6 +602,7 @@ async function showLatestCv() {
     await renderCvPdf(objectUrl, true);
   } catch (error) {
     console.warn("Could not load the latest CV PDF; showing the saved preview instead.", error);
+    await cacheCvDownloadFile(fallbackCvPdfUrl);
   }
 }
 
